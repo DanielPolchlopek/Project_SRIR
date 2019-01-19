@@ -16,6 +16,22 @@ app = Flask(__name__)
 #
 # message_to_client = {}
 
+client_list = []
+
+
+class Message(object):
+    unique_id = 0
+
+    def __init__(self):
+        self.client_id = self.unique_id
+        self.source = "empty"
+        self.is_compiled = "no determine"
+        self.program_output = "empty"
+
+    def __str__(self):
+        return "Id: " + str(self.client_id) + ", source: " + str(self.source) + \
+               ", is_compiled: " + str(self.is_compiled) + ", program_output: " + str(self.program_output)
+
 
 @app.route('/')
 def hello_world():
@@ -28,19 +44,8 @@ def hello_worldert():
     return "Test Ajax"
 
 
-def verify_program():
-
-
-    return "Ciekawe"
-
-
-@app.route('/uploader', methods=['POST'])
-def upload_file():
-
-    # pobranie pliku
-    file_to_compile = request.files['file']
-
-    isCompiled = False
+def verify_program(file_to_compile):
+    is_compiled = False
     msg = request.files.get('file')
 
     print("Code: ", msg)
@@ -49,12 +54,7 @@ def upload_file():
     try:
         # proba kompilacji
         file_to_run = py_compile.compile('zapis.py', cfile=None, dfile=None, doraise=True, optimize=-1)
-        isCompiled = True
-
-        # uruchomienie skompilowanego programu
-        proc = subprocess.Popen(file_to_run, stdout=subprocess.PIPE, shell=True)
-        (out, err) = proc.communicate()
-        print("program output:", out, ", ", err)
+        is_compiled = True
 
     except py_compile.PyCompileError:
         # program sie nie kompiluje
@@ -63,10 +63,24 @@ def upload_file():
     except:
         print("Blad nieznajomego pochodzenia")
 
-    if isCompiled:
-        return "Kompiluje sie"
+    if is_compiled:
+        # uruchomienie skompilowanego programu
+        proc = subprocess.Popen(file_to_run, stdout=subprocess.PIPE, shell=True)
+        (output, error) = proc.communicate()
+        # print("program output:", output, ", ", error)
+        return is_compiled, output, error
 
-    return "Nie kompiluje sie :/ "
+    return is_compiled, None, None
+
+
+@app.route('/uploader', methods=['POST'])
+def upload_file():
+    file_to_compile = request.files['file']
+    is_compiled, output, error = verify_program(file_to_compile)
+    print("Compile: ", is_compiled,
+          "output: ", output,
+          "error: ", error)
+    return "Test przesylu plikow"
 
 
 # obslugiwanie bledow
@@ -101,10 +115,13 @@ def recive_data():
     output = "output"
     is_compile = False
 
-    # print("Client list size: ", len(client_list))
-    # for client in client_list:
-    #     print(client)
+    msg = Message()
+    client_list.append(msg)
+    Message.unique_id += 1
 
+    print("Client list size: ", len(client_list))
+    for client in client_list:
+        print(client)
 
     return render_template('client.html',
                            output=output,
