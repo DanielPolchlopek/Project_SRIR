@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+    </style>
+
+
+    <meta charset="UTF-8">
+    <title>Client</title>
+</head>
+<body>
+
+    <h1>
+        Strona klienta
+    </h1>
+
+    <p>
+        Dodaj plik z programem i przeslij do serwera
+    </p>
+
+
+    <table>
+        <tr>
+            <th>Przesylanie programu</th>
+            <th>
+                <button>Prześlij program na komputer K2</button>
+            </th>
+        </tr>
+
+        <tr>
+            <th>Informacja czy przeslany program byl poprawny</th>
+            <th>
+                {{ is_compile }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>Output przeslanego programu</th>
+            <th>
+                {{ output }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>Porownywanie przesylanych programow</th>
+            <th></th>
+        </tr>
+
+
+    </table>
+
+
+    <button>
+        Click
+    </button>
+
+
+</body>
+</html>

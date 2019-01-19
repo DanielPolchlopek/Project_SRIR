@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <title>Hello</title>
+</head>
+<body>
+
+<div style="text-align: center">
+    <h1>Program zaliczeniowy na przedmiot: Systemy Równoległe i Rozproszone</h1>
+    <br>
+
+    <p>Upload file to check if it is compiling and send to another computer</p>
+
+    <table>
+        <form action = "http://localhost:5000/uploader" method = "POST"
+            enctype = "multipart/form-data">
+
+        <tr>
+            <th>Wybierz plik</th>
+            <th>second</th>
+        </tr>
+        <tr>
+            <th><input type = "file" name = "file" /></th>
+            <th><input type = "submit"/></th>
+        </tr>
+
+        </form>
+    </table>
+
+</div>
+
+</body>
+</html>

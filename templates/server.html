@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+    $(document).ready(function(){
+      $("button").click(function(){
+        $.ajax({url: "http://localhost:5000/change", success: function(result){
+
+            $("#div1").html(result);
+
+        }});
+      });
+    });
+
+    </script>
+
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <title>Server</title>
+</head>
+<body>
+
+    <h1>
+        Dane o przeslanym programie
+    </h1>
+
+    <div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
+
+    <button>Click</button>
+
+    <table>
+        <tr>
+            <th>Czy otrzymalem kod zrodlowy</th>
+            <th>
+                {{ is_received_code }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>
+                Czy program sie kompiluje:
+            </th>
+            <th>
+                {{ is_compiled }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>
+                Czy przeslalem program do komputera K1
+            </th>
+
+            <th>
+                {{ is_sent }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>
+                Output programu:
+            </th>
+            <th>
+                {{ output }}
+            </th>
+        </tr>
+
+        <tr>
+            <th>
+                Przeslane programy:
+            </th>
+            <th>
+                {{ sent_program }}
+            </th>
+        </tr>
+    </table>
+
+</body>
+</html>
