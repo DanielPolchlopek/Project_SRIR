@@ -35,7 +35,6 @@ class Message(object):
 
 @app.route('/')
 def hello_world():
-    print("Hello")
     return render_template('index.html')
 
 
@@ -72,17 +71,6 @@ def verify_program(file_to_compile):
 
     return is_compiled, None, None
 
-
-@app.route('/uploader', methods=['POST'])
-def upload_file():
-    file_to_compile = request.files['file']
-    is_compiled, output, error = verify_program(file_to_compile)
-    print("Compile: ", is_compiled,
-          "output: ", output,
-          "error: ", error)
-    return "Test przesylu plikow"
-
-
 # obslugiwanie bledow
 @app.errorhandler(404)
 def not_found(error):
@@ -91,7 +79,7 @@ def not_found(error):
 
 @app.route('/server')
 def send_data():
-    print("Start server")
+    print("Reload server")
     output = "testprzesylu"
     is_compiled = False
     is_sent = False
@@ -107,14 +95,7 @@ def send_data():
 
 
 @app.route('/client')
-def recive_data():
-    # url = 'http://localhost:5000/server'
-    # data = requests.get(url).json()
-    # print("Client: ", data)
-
-    output = "output"
-    is_compile = False
-
+def show_blank_client_view():
     msg = Message()
     client_list.append(msg)
     Message.unique_id += 1
@@ -124,8 +105,32 @@ def recive_data():
         print(client)
 
     return render_template('client.html',
-                           output=output,
-                           is_compile=is_compile)
+                           output="output",
+                           is_compile=False,
+                           client_id=(Message.unique_id-1))
+
+
+@app.route('/uploader', methods=['POST'])
+def upload_file():
+    file_to_compile = request.files['file']
+    client_id = request.form.get('client_id', type=int)
+
+    is_compiled, output, error = verify_program(file_to_compile)
+    print("Compile: ", is_compiled,
+          "output: ", output,
+          "error: ", error,
+          "client_id: ", client_id)
+
+    # send data to server
+    # url = 'http://localhost:5000/server'
+    # data = requests.get(url).json()
+    # print("Client: ", data)
+
+
+    return render_template('client.html',
+                           output="Waiting for data from server",
+                           is_compile="Waiting for data from server",
+                           client_id=client_id)
 
 
 if __name__ == '__main__':
