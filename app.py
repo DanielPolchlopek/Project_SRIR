@@ -173,6 +173,7 @@ def show_update_client_view():
                             output=client_list[client_id].program_output)
 
 
+
 @app.route('/actualClientData')
 def ssssss():
     print("Ajax wyslal zapytanie !!!!!!!!!!!!!!")
