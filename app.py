@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 import json
 import py_compile
 import subprocess
+from werkzeug.datastructures import FileStorage
 
 app = Flask(__name__)
 
@@ -24,13 +25,15 @@ class Message(object):
 
     def __init__(self):
         self.client_id = self.unique_id
-        self.source = "empty"
+        self.source = None
         self.is_compiled = "no determine"
         self.program_output = "empty"
+        self.is_check_by_server = False
 
     def __str__(self):
         return "Id: " + str(self.client_id) + ", source: " + str(self.source) + \
-               ", is_compiled: " + str(self.is_compiled) + ", program_output: " + str(self.program_output)
+               ", is_compiled: " + str(self.is_compiled) + ", program_output: " + str(self.program_output) + \
+                ", is_check_by_server: " + str(self.is_check_by_server)
 
 
 @app.route('/')
@@ -45,10 +48,21 @@ def hello_worldert():
 
 def verify_program(file_to_compile):
     is_compiled = False
-    msg = request.files.get('file')
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@: ", file_to_compile)
 
-    print("Code: ", msg)
-    file_to_compile.save('zapis.py')
+
+    # # proba przepisania pliku do innego
+    # with open(file_to_compile) as send_file:
+    #     print("UDalo sie: ")
+
+    # file = None
+    # with open('document-test/test.pdf', 'rb') as fp:
+    #     file = FileStorage(fp)
+    # file.save('document-test/test_new.pdf')
+    #
+    # f = open(file_to_compile, 'r')
+    # file_to_compile.save('zapis.py')
+
 
     try:
         # proba kompilacji
@@ -66,7 +80,6 @@ def verify_program(file_to_compile):
         # uruchomienie skompilowanego programu
         proc = subprocess.Popen(file_to_run, stdout=subprocess.PIPE, shell=True)
         (output, error) = proc.communicate()
-        # print("program output:", output, ", ", error)
         return is_compiled, output, error
 
     return is_compiled, None, None
@@ -80,18 +93,22 @@ def not_found(error):
 @app.route('/server')
 def send_data():
     print("Reload server")
-    output = "testprzesylu"
-    is_compiled = False
-    is_sent = False
-    is_received_code = False
-    sent_program = []
+
+    for client in client_list:
+        if (client.source is not None) and (client.is_check_by_server is False):
+            client_id                                   = client.client_id
+            client_list[client_id].is_check_by_server   = True
+            source_to_compile                           = client.source
+            print("[SERVER] Source: ", source_to_compile)
+            is_compiled, output, error                  = verify_program(source_to_compile)
+            client_list[client_id].program_output       = output
+            client_list[client_id].is_compiled          = is_compiled
+
+            # print("[SERVER] CLIENT_ID: ", client)
+            # # client_list[cli]
 
     return render_template('server.html',
-                           output=output,
-                           is_compiled=is_compiled,
-                           sent_program=sent_program,
-                           is_sent=is_sent,
-                           is_received_code=is_received_code)
+                           client_list=client_list)
 
 
 @app.route('/client')
@@ -100,9 +117,9 @@ def show_blank_client_view():
     client_list.append(msg)
     Message.unique_id += 1
 
-    print("Client list size: ", len(client_list))
-    for client in client_list:
-        print(client)
+    # print("Client list size: ", len(client_list))
+    # for client in client_list:
+    #     print(client)
 
     return render_template('client.html',
                            output="output",
@@ -112,20 +129,24 @@ def show_blank_client_view():
 
 @app.route('/uploader', methods=['POST'])
 def upload_file():
-    file_to_compile = request.files['file']
+    source_to_compile = request.files['file']
     client_id = request.form.get('client_id', type=int)
+    client_list[client_id].source = source_to_compile
+    source_to_compile.save('zapis.py')
+    print("Udalo sie zapisac plik !!!!!!!")
 
-    is_compiled, output, error = verify_program(file_to_compile)
-    print("Compile: ", is_compiled,
-          "output: ", output,
-          "error: ", error,
-          "client_id: ", client_id)
+
+    # print("Source to compie: ", source_to_compile)
+    # is_compiled, output, error = verify_program(source_to_compile)
+    # print("Compile: ", is_compiled,
+    #       "output: ", output,
+    #       "error: ", error,
+    #       "client_id: ", client_id)
 
     # send data to server
     # url = 'http://localhost:5000/server'
     # data = requests.get(url).json()
     # print("Client: ", data)
-
 
     return render_template('client.html',
                            output="Waiting for data from server",
