@@ -32,11 +32,19 @@ class Message(object):
         self.is_check_by_server = False
         self.is_reload          = 0
 
+    def get_is_compiled(self):
+        return self.is_compiled
+
+
+
     def __str__(self):
         return "Id: " + str(self.client_id) + ", source: " + str(self.source) + \
                ", is_compiled: " + str(self.is_compiled) + ", program_output: " + str(self.program_output) + \
                 ", is_check_by_server: " + str(self.is_check_by_server)
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 @app.route('/')
 def hello_world():
@@ -120,6 +128,7 @@ def show_blank_client_view():
 
     msg = Message()
     client_list.append(msg)
+    client_id = Message.unique_id
     Message.unique_id += 1
 
     # print("Client list size: ", len(client_list))
@@ -127,9 +136,15 @@ def show_blank_client_view():
     #     print(client)
 
     return render_template('client.html',
-                           output="output",
-                           is_compile=False,
-                           client_id=(Message.unique_id-1))
+                           output=" - ",
+                           is_compiled=" - ",
+                           client_id=client_id)
+
+
+# send data to server
+# url = 'http://localhost:5000/server'
+# data = requests.get(url).json()
+# print("Client: ", data)
 
 
 @app.route('/uploader', methods=['POST'])
@@ -143,36 +158,20 @@ def upload_file():
     source_to_compile.save('zapis.py')
     print("Udalo sie zapisac plik !!!!!!!")
 
-
-    # print("Source to compie: ", source_to_compile)
-    # is_compiled, output, error = verify_program(source_to_compile)
-    # print("Compile: ", is_compiled,
-    #       "output: ", output,
-    #       "error: ", error,
-    #       "client_id: ", client_id)
-
-    # send data to server
-    # url = 'http://localhost:5000/server'
-    # data = requests.get(url).json()
-    # print("Client: ", data)
-
-    # return render_template('client.html',
-    #                        output="Waiting for data from server",
-    #                        is_compile="Waiting for data from server",
-    #                        client_id=client_id)
-
     return redirect(url_for('show_update_client_view', client_id=client_id))
 
 
 @app.route('/updateClientData')
 def show_update_client_view():
-    print("Testowa stronka")
-    client_id = int(request.args['client_id'])
-    client_list[client_id].is_reload = 1
+    client_id                           = int(request.args['client_id'])
+    client_list[client_id].is_reload    = 1
 
     return render_template('client.html',
                             client_id=client_id,
-                            is_reload=client_list[client_id].is_reload)
+                            is_reload=client_list[client_id].is_reload,
+                            is_compiled=client_list[client_id].is_compiled,
+                            output=client_list[client_id].program_output)
+
 
 @app.route('/actualClientData')
 def ssssss():
@@ -180,10 +179,7 @@ def ssssss():
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-
-
-
-
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(host='localhost', port=5000)
 
