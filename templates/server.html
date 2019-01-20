@@ -4,26 +4,45 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <script>
-    $(document).ready(function(){
-      $("button").click(function(){
-        $.ajax({url: "http://localhost:5000/change", success: function(result){
 
-            $("#div1").html(result);
-
-        }});
-      });
-    });
 
     $(document).ready(function() {
       setInterval(function() {
-        cache_clear()
-      }, 3000);
+
+            $.ajax({url: "http://localhost:5000/conectedClients", success: function(result){
+                var json = jQuery.parseJSON(result);
+                console.log("Length: ", json.length);
+
+                var content = "";
+
+                content += '<table>';
+                content += '<tr>';
+                content += '<th>\\</th>';
+                content += '<th>Czy otrzymałem kod zrodlowy</th>';
+                content += '<th>CZy program sie kompiluje</th>';
+                content += '<th>CZy przeslalem program do klienta</th>';
+                content += '<th>Output programu ???</th>';
+                content += '</tr>';
+
+                for (var i = 0; i < json.length; i++) {
+                    content += '<tr>';
+                    content += '<th>' + i + '</th>';
+                    content += '<th>' + json[i].is_server_has_program + '</th>';
+                    content += '<th>' + json[i].is_compiled + '</th>';
+                    content += '<th>' + json[i].is_check_by_server + '</th>';
+                    content += '<th>' + json[i].program_output + '</th>';
+                    content += '</tr>';
+                }
+                content += '</table>';
+
+                $("#table_to_update").html(content);
+
+            }});
+
+
+      }, 1000);
     });
 
-    function cache_clear() {
-      window.location.reload(true);
-      // window.location.reload(); use this if you do not remove cache
-    }
 
     </script>
 
@@ -40,58 +59,26 @@
 <body>
 
     <h1>
-        Dane o przeslanym programie
+        Dane o przeslanych programach
     </h1>
 
-    <div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
+    <br>
+    <hr>
+    <br>
 
-    <button>Click</button>
+    <div id="table_to_update"></div>
 
-    <table>
-        <tr>
-            <th>Czy otrzymalem kod zrodlowy</th>
-            <th>
-                {{ is_received_code }}
-            </th>
-        </tr>
+    <br>
+    <hr>
+    <br>
 
-        <tr>
-            <th>
-                Czy program sie kompiluje:
-            </th>
-            <th>
-                {{ is_compiled }}
-            </th>
-        </tr>
+        <button>Click</button>
 
-        <tr>
-            <th>
-                Czy przeslalem program do komputera K1
-            </th>
+    <br>
+    <hr>
+    <br>
 
-            <th>
-                {{ is_sent }}
-            </th>
-        </tr>
 
-        <tr>
-            <th>
-                Output programu:
-            </th>
-            <th>
-                {{ output }}
-            </th>
-        </tr>
-
-        <tr>
-            <th>
-                Przeslane programy:
-            </th>
-            <th>
-                {{ sent_program }}
-            </th>
-        </tr>
-    </table>
 
 </body>
 </html>

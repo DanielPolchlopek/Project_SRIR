@@ -3,21 +3,8 @@ from flask import Flask, render_template, request, jsonify, \
 import json
 import py_compile
 import subprocess
-from werkzeug.datastructures import FileStorage
 
 app = Flask(__name__)
-
-
-# message = {}
-# message['id'] = 2
-# json_data = json.dumps(message)
-#
-#
-# message_to_sever = {}
-#
-#
-# message_to_client = {}
-
 client_list = []
 
 
@@ -25,17 +12,16 @@ class Message(object):
     unique_id = 0
 
     def __init__(self):
-        self.client_id          = self.unique_id
-        self.source             = None
-        self.is_compiled        = "no determine"
-        self.program_output     = "empty"
-        self.is_check_by_server = False
-        self.is_reload          = 0
+        self.client_id              = self.unique_id
+        self.source                 = None
+        self.is_compiled            = "no determine"
+        self.program_output         = "empty"
+        self.is_check_by_server     = False
+        self.is_reload              = 0
+        self.is_server_has_program  = False
 
     def get_is_compiled(self):
         return self.is_compiled
-
-
 
     def __str__(self):
         return "Id: " + str(self.client_id) + ", source: " + str(self.source) + \
@@ -45,6 +31,7 @@ class Message(object):
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
+
 
 @app.route('/')
 def hello_world():
@@ -94,6 +81,7 @@ def verify_program(file_to_compile):
 
     return is_compiled, None, None
 
+
 # obslugiwanie bledow
 @app.errorhandler(404)
 def not_found(error):
@@ -106,19 +94,15 @@ def send_data():
 
     for client in client_list:
         if (client.source is not None) and (client.is_check_by_server is False):
-            client_id                                   = client.client_id
-            client_list[client_id].is_check_by_server   = True
-            source_to_compile                           = client.source
-            print("[SERVER] Source: ", source_to_compile)
-            is_compiled, output, error                  = verify_program(source_to_compile)
-            client_list[client_id].program_output       = output
-            client_list[client_id].is_compiled          = is_compiled
+            client_id                                       = client.client_id
+            client_list[client_id].is_check_by_server       = True
+            source_to_compile                               = client.source
+            is_compiled, output, error                      = verify_program(source_to_compile)
+            client_list[client_id].program_output           = output
+            client_list[client_id].is_compiled              = is_compiled
+            client_list[client_id].is_server_has_program    = True
 
-            # print("[SERVER] CLIENT_ID: ", client)
-            # # client_list[cli]
-
-    return render_template('server.html',
-                           client_list=client_list)
+    return render_template('server.html')
 
 
 @app.route('/client')
@@ -131,15 +115,14 @@ def show_blank_client_view():
     client_id = Message.unique_id
     Message.unique_id += 1
 
-    # print("Client list size: ", len(client_list))
-    # for client in client_list:
-    #     print(client)
-
     return render_template('client.html',
                            output=" - ",
                            is_compiled=" - ",
                            client_id=client_id)
 
+# print("Client list size: ", len(client_list))
+# for client in client_list:
+#     print(client)
 
 # send data to server
 # url = 'http://localhost:5000/server'
@@ -173,11 +156,13 @@ def show_update_client_view():
                             output=client_list[client_id].program_output)
 
 
+def obj_dict(obj):
+    return obj.__dict__
 
-@app.route('/actualClientData')
-def ssssss():
-    print("Ajax wyslal zapytanie !!!!!!!!!!!!!!")
-    return make_response(jsonify({'error': 'Not found'}), 404)
+
+@app.route('/conectedClients')
+def conectedClients():
+    return make_response(json.dumps(client_list, default=obj_dict))
 
 
 if __name__ == '__main__':
