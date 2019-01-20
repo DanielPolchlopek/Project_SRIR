@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, \
+                        make_response, redirect, url_for
 import json
 import py_compile
 import subprocess
@@ -24,11 +25,12 @@ class Message(object):
     unique_id = 0
 
     def __init__(self):
-        self.client_id = self.unique_id
-        self.source = None
-        self.is_compiled = "no determine"
-        self.program_output = "empty"
+        self.client_id          = self.unique_id
+        self.source             = None
+        self.is_compiled        = "no determine"
+        self.program_output     = "empty"
         self.is_check_by_server = False
+        self.is_reload          = 0
 
     def __str__(self):
         return "Id: " + str(self.client_id) + ", source: " + str(self.source) + \
@@ -113,6 +115,9 @@ def send_data():
 
 @app.route('/client')
 def show_blank_client_view():
+
+    print("Reload client")
+
     msg = Message()
     client_list.append(msg)
     Message.unique_id += 1
@@ -129,6 +134,9 @@ def show_blank_client_view():
 
 @app.route('/uploader', methods=['POST'])
 def upload_file():
+
+    print("Reload uploader")
+
     source_to_compile = request.files['file']
     client_id = request.form.get('client_id', type=int)
     client_list[client_id].source = source_to_compile
@@ -148,10 +156,32 @@ def upload_file():
     # data = requests.get(url).json()
     # print("Client: ", data)
 
+    # return render_template('client.html',
+    #                        output="Waiting for data from server",
+    #                        is_compile="Waiting for data from server",
+    #                        client_id=client_id)
+
+    return redirect(url_for('show_update_client_view', client_id=client_id))
+
+
+@app.route('/updateClientData')
+def show_update_client_view():
+    print("Testowa stronka")
+    client_id = int(request.args['client_id'])
+    client_list[client_id].is_reload = 1
+
     return render_template('client.html',
-                           output="Waiting for data from server",
-                           is_compile="Waiting for data from server",
-                           client_id=client_id)
+                            client_id=client_id,
+                            is_reload=client_list[client_id].is_reload)
+
+@app.route('/actualClientData')
+def ssssss():
+    print("Ajax wyslal zapytanie !!!!!!!!!!!!!!")
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+
+
 
 
 if __name__ == '__main__':

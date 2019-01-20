@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+
+    $(document).ready(function() {
+      setInterval(function() {
+        cache_clear()
+      }, 4000);
+    });
+
+    function cache_clear() {
+
+        console.log("isReload: ", );
+        let reload = {{ is_reload }}
+
+        if (reload == 1){
+            window.location.reload(true);
+        }
+
+
+      // window.location.reload(); use this if you do not remove cache
+    }
+
+
+    </script>
+
 
     <style>
         table, th, td {
@@ -39,6 +65,12 @@
             <th><input type = "submit"/></th>
         </tr>
 
+
+        <tr>
+            <th>Client_id: </th>
+            <th>{{ client_id }}</th>
+        </tr>
+
         <input type = "hidden" name = "client_id" value={{ client_id }} />
 
         </form>
@@ -48,24 +80,24 @@
     <hr>
     <br>
 
+    <div id="tableToUpdate">
+        <table>
+            <tr>
+                <th>Informacja czy przeslany program byl poprawny</th>
+                <th>
+                    {{ is_compile }}
+                </th>
+            </tr>
 
-    <table>
-        <tr>
-            <th>Informacja czy przeslany program byl poprawny</th>
-            <th>
-                {{ is_compile }}
-            </th>
-        </tr>
+            <tr>
+                <th>Output przeslanego programu</th>
+                <th>
+                    {{ output }}
+                </th>
+            </tr>
 
-        <tr>
-            <th>Output przeslanego programu</th>
-            <th>
-                {{ output }}
-            </th>
-        </tr>
-
-    </table>
-
+        </table>
+    </div>
 
 </body>
 </html>
