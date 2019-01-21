@@ -3,10 +3,10 @@ from flask import Flask, render_template, request, jsonify, \
 import json
 import py_compile
 import subprocess
+import re
 
 app = Flask(__name__)
 client_list = []
-
 
 class Message(object):
     unique_id = 0
@@ -28,9 +28,6 @@ class Message(object):
                ", is_compiled: " + str(self.is_compiled) + ", program_output: " + str(self.program_output) + \
                 ", is_check_by_server: " + str(self.is_check_by_server)
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
 
 
 @app.route('/')
@@ -47,19 +44,9 @@ def verify_program(file_to_compile):
     is_compiled = False
     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@: ", file_to_compile)
 
-
-    # # proba przepisania pliku do innego
-    # with open(file_to_compile) as send_file:
-    #     print("UDalo sie: ")
-
-    # file = None
-    # with open('document-test/test.pdf', 'rb') as fp:
-    #     file = FileStorage(fp)
-    # file.save('document-test/test_new.pdf')
-    #
-    # f = open(file_to_compile, 'r')
-    # file_to_compile.save('zapis.py')
-
+    f = open("zapis.py", "w")
+    f.write(file_to_compile)
+    f.close()
 
     try:
         # proba kompilacji
@@ -77,9 +64,11 @@ def verify_program(file_to_compile):
         # uruchomienie skompilowanego programu
         proc = subprocess.Popen(file_to_run, stdout=subprocess.PIPE, shell=True)
         (output, error) = proc.communicate()
-        return is_compiled, output, error
+        print("Output: ", output)
 
-    return is_compiled, None, None
+        return is_compiled, output.decode('utf-8'), error
+
+    return is_compiled, "-", None
 
 
 # obslugiwanie bledow
@@ -91,28 +80,15 @@ def not_found(error):
 @app.route('/server')
 def send_data():
     print("Reload server")
-
-    for client in client_list:
-        if (client.source is not None) and (client.is_check_by_server is False):
-            client_id                                       = client.client_id
-            client_list[client_id].is_check_by_server       = True
-            source_to_compile                               = client.source
-            is_compiled, output, error                      = verify_program(source_to_compile)
-            client_list[client_id].program_output           = output
-            client_list[client_id].is_compiled              = is_compiled
-            client_list[client_id].is_server_has_program    = True
-
     return render_template('server.html')
 
 
 @app.route('/client')
 def show_blank_client_view():
+    msg         = Message()
+    client_id   = Message.unique_id
 
-    print("Reload client")
-
-    msg = Message()
     client_list.append(msg)
-    client_id = Message.unique_id
     Message.unique_id += 1
 
     return render_template('client.html',
@@ -120,27 +96,13 @@ def show_blank_client_view():
                            is_compiled=" - ",
                            client_id=client_id)
 
-# print("Client list size: ", len(client_list))
-# for client in client_list:
-#     print(client)
-
-# send data to server
-# url = 'http://localhost:5000/server'
-# data = requests.get(url).json()
-# print("Client: ", data)
-
 
 @app.route('/uploader', methods=['POST'])
 def upload_file():
-
     print("Reload uploader")
-
     source_to_compile = request.files['file']
     client_id = request.form.get('client_id', type=int)
-    client_list[client_id].source = source_to_compile
-    source_to_compile.save('zapis.py')
-    print("Udalo sie zapisac plik !!!!!!!")
-
+    client_list[client_id].source = source_to_compile.read().decode('utf-8')
     return redirect(url_for('show_update_client_view', client_id=client_id))
 
 
@@ -162,6 +124,19 @@ def obj_dict(obj):
 
 @app.route('/conectedClients')
 def conectedClients():
+    for client in client_list:
+        if (client.source is not None) and (client.is_check_by_server is False):
+            client_id                                       = client.client_id
+            client_list[client_id].is_check_by_server       = True
+            source_to_compile                               = client.source
+            is_compiled, output, error                      = verify_program(source_to_compile)
+            client_list[client_id].program_output           = output
+            client_list[client_id].is_compiled              = is_compiled
+            client_list[client_id].is_server_has_program    = True
+
+    print("ClientList: ", client_list)
+
+
     return make_response(json.dumps(client_list, default=obj_dict))
 
 
