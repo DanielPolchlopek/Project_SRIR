@@ -19,9 +19,9 @@
                 content += '<tr>';
                 content += '<th>\\</th>';
                 content += '<th>Czy otrzymałem kod zrodlowy</th>';
-                content += '<th>CZy program sie kompiluje</th>';
-                content += '<th>CZy przeslalem program do klienta</th>';
-                content += '<th>Output programu ???</th>';
+                content += '<th>Czy program sie kompiluje</th>';
+                content += '<th>Czy przeslalem program do klienta</th>';
+                content += '<th>Output programu przeslanego programu</th>';
                 content += '</tr>';
 
                 for (var i = 0; i < json.length; i++) {
@@ -57,11 +57,22 @@
 <body>
 
     <h1>
-        Dane o przeslanych programach
+        Strona serwera
     </h1>
+
+    <p>
+        Program serwera oczekuje na podlaczenie klienta i przeslany przez niego plik.
+        Po otrzymaniu pliku sprawdza jego poprawnosc, jesli program jest poprawny to zwraca jego output.
+    </p>
 
     <br>
     <hr>
+    <br>
+
+    <h3>
+        Dane o przeslanych programach
+    </h3>
+
     <br>
 
     <div id="table_to_update"></div>
@@ -69,7 +80,6 @@
     <br>
     <hr>
     <br>
-
 
 
 </body>
