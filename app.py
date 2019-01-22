@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify, \
                         make_response, redirect, url_for
 import json
-import py_compile
-import subprocess
+import py_compile       # kompilacja programu
+import subprocess       # uruchomienie programu
 
 app = Flask(__name__)
 client_list = []
@@ -30,12 +30,12 @@ class Message(object):
 
 
 def verify_program(file_to_compile):
-    is_compiled = False
-
+    # print("File to compile: ", len(file_to_compile), ", ", file_to_compile)
     f = open("zapis.py", "w")
     f.write(file_to_compile)
     f.close()
 
+    is_compiled = False
     try:
         # proba kompilacji
         file_to_run = py_compile.compile('zapis.py', cfile=None, dfile=None, doraise=True, optimize=-1)
@@ -43,10 +43,10 @@ def verify_program(file_to_compile):
 
     except py_compile.PyCompileError:
         # program sie nie kompiluje
-        print("Nie kompiluje sie, nie dobrze !!!")
+        # print("Nie kompiluje sie, nie dobrze !!!")
 
     except:
-        print("Blad nieznajomego pochodzenia")
+        # print("Blad nieznajomego pochodzenia")
 
     if is_compiled:
         # uruchomienie skompilowanego programu
@@ -86,10 +86,11 @@ def show_blank_client_view():
 
 @app.route('/uploader', methods=['POST'])
 def upload_file():
-    print("Reload uploader")
-    source_to_compile = request.files['file']
-    client_id = request.form.get('client_id', type=int)
-    client_list[client_id].source = source_to_compile.read().decode('utf-8')
+    # print("Reload uploader")
+    source_to_compile               = request.files['file']
+    client_id                       = request.form.get('client_id', type=int)
+    client_list[client_id].source   = source_to_compile.read().decode('utf-8')
+
     return redirect(url_for('show_update_client_view', client_id=client_id))
 
 
@@ -128,4 +129,3 @@ def conectedClients():
 if __name__ == '__main__':
     app.run(debug=True)
     # app.run(host='localhost', port=5000)
-
