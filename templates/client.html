@@ -8,18 +8,17 @@
     $(document).ready(function() {
       setInterval(function() {
         cache_clear()
-      }, 4000);
+      }, 2500);
     });
 
     function cache_clear() {
 
         console.log("isReload: ", );
-        let reload = {{ is_reload }}
+        let reload ={{ is_reload }};
 
-        if (reload == 1){
+        if (reload === 1){
             window.location.reload(true);
         }
-
 
       // window.location.reload(); use this if you do not remove cache
     }

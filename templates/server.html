@@ -5,26 +5,24 @@
 
     <script>
 
-
     $(document).ready(function() {
       setInterval(function() {
 
             $.ajax({url: "http://localhost:5000/conectedClients", success: function(result){
-                var json = jQuery.parseJSON(result);
+                let json = jQuery.parseJSON(result);
                 console.log("Length: ", json.length);
 
-                var content = "";
-
+                let content = "";
                 content += '<table>';
                 content += '<tr>';
                 content += '<th>\\</th>';
                 content += '<th>Czy otrzymałem kod zrodlowy</th>';
                 content += '<th>Czy program sie kompiluje</th>';
                 content += '<th>Czy przeslalem program do klienta</th>';
-                content += '<th>Output programu przeslanego programu</th>';
+                content += '<th>Output przeslanego programu</th>';
                 content += '</tr>';
 
-                for (var i = 0; i < json.length; i++) {
+                for (let i = 0; i < json.length; i++) {
                     content += '<tr>';
                     content += '<th>' + i + '</th>';
                     content += '<th>' + json[i].is_server_has_program + '</th>';

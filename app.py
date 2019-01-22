@@ -3,10 +3,10 @@ from flask import Flask, render_template, request, jsonify, \
 import json
 import py_compile
 import subprocess
-import re
 
 app = Flask(__name__)
 client_list = []
+
 
 class Message(object):
     unique_id = 0
@@ -29,20 +29,8 @@ class Message(object):
                 ", is_check_by_server: " + str(self.is_check_by_server)
 
 
-
-@app.route('/')
-def hello_world():
-    return render_template('index.html')
-
-
-@app.route('/change')
-def hello_worldert():
-    return "Test Ajax"
-
-
 def verify_program(file_to_compile):
     is_compiled = False
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@: ", file_to_compile)
 
     f = open("zapis.py", "w")
     f.write(file_to_compile)
@@ -79,7 +67,6 @@ def not_found(error):
 
 @app.route('/server')
 def send_data():
-    print("Reload server")
     return render_template('server.html')
 
 
@@ -122,6 +109,7 @@ def obj_dict(obj):
     return obj.__dict__
 
 
+# API udostepnione dla widoku serwera
 @app.route('/conectedClients')
 def conectedClients():
     for client in client_list:
@@ -133,9 +121,6 @@ def conectedClients():
             client_list[client_id].program_output           = output
             client_list[client_id].is_compiled              = is_compiled
             client_list[client_id].is_server_has_program    = True
-
-    print("ClientList: ", client_list)
-
 
     return make_response(json.dumps(client_list, default=obj_dict))
 
