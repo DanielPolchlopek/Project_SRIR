@@ -30,33 +30,19 @@ class Message(object):
 
 
 def verify_program(file_to_compile):
-    # print("File to compile: ", len(file_to_compile), ", ", file_to_compile)
-    f = open("zapis.py", "w")
-    f.write(file_to_compile)
-    f.close()
-
     is_compiled = False
+
     try:
-        # proba kompilacji
-        file_to_run = py_compile.compile('zapis.py', cfile=None, dfile=None, doraise=True, optimize=-1)
+        result = eval(compile(file_to_compile, '<string>', 'eval'))
+        print("Result try: ", result)
         is_compiled = True
 
-    except py_compile.PyCompileError:
-        # program sie nie kompiluje
-        # print("Nie kompiluje sie, nie dobrze !!!")
+    except Exception as e:
+        print("Polecial wyjatek")
+        result = "Runtime Error: {str(e)}"
 
-    except:
-        # print("Blad nieznajomego pochodzenia")
-
-    if is_compiled:
-        # uruchomienie skompilowanego programu
-        proc = subprocess.Popen(file_to_run, stdout=subprocess.PIPE, shell=True)
-        (output, error) = proc.communicate()
-        print("Output: ", output)
-
-        return is_compiled, output.decode('utf-8'), error
-
-    return is_compiled, "-", None
+    print("Result: ", result)
+    return is_compiled, result, None
 
 
 # obslugiwanie bledow
