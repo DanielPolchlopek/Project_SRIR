@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, jsonify, \
                         make_response, redirect, url_for
 import json
-import py_compile       # kompilacja programu
-import subprocess       # uruchomienie programu
 
 app = Flask(__name__)
 client_list = []
@@ -32,17 +30,19 @@ class Message(object):
 def verify_program(file_to_compile):
     is_compiled = False
 
+
     try:
         result = eval(compile(file_to_compile, '<string>', 'eval'))
+        if result is None:
+            result = "-"
+
         print("Result try: ", result)
         is_compiled = True
 
-    except Exception as e:
-        print("Polecial wyjatek")
-        result = "Runtime Error: {str(e)}"
+    except Exception:
+        result = "-"
 
-    print("Result: ", result)
-    return is_compiled, result, None
+    return is_compiled, result
 
 
 # obslugiwanie bledow
@@ -104,7 +104,7 @@ def conectedClients():
             client_id                                       = client.client_id
             client_list[client_id].is_check_by_server       = True
             source_to_compile                               = client.source
-            is_compiled, output, error                      = verify_program(source_to_compile)
+            is_compiled, output                             = verify_program(source_to_compile)
             client_list[client_id].program_output           = output
             client_list[client_id].is_compiled              = is_compiled
             client_list[client_id].is_server_has_program    = True
