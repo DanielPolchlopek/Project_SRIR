@@ -65,7 +65,6 @@ def upload_file():
 @routes.route('/updateClientData')
 def show_update_client_view():
     client2 = request.args['client']
-    print("JSON: ", client2)
     client  = parse_message_from_server(client2)
 
     return render_template('client.html',

@@ -1,4 +1,5 @@
 from server.server_controller import verify_program, parse_message_from_client, update_client_data
+from client.client_controller import getClientId, parse_message_from_server
 from model.model import Message
 import unittest
 
@@ -83,11 +84,28 @@ class TestUpdateClientData(unittest.TestCase):
 # --------------------------------------
 # Testy jednostkowe dla clienta
 # --------------------------------------
+# testuje API Serwera, aby przeprowadzic test trzeba zresetowac serwer
+class TestGetClientId(unittest.TestCase):
+
+    def test_getClientId(self):
+        self.assertEqual(getClientId(), 0)
 
 
+class TestParseMessageFromServer(unittest.TestCase):
+    def setUp(self):
+        self.json = "{\"client_id\": 0, \"source\": \"2+2\", \"is_compiled\": true, \"program_output\": 4, \"is_check_by_server\": true, \"is_reload\": 0, \"is_server_has_program\": true}"
 
+        self.msg = Message()
+        self.msg.client_id               = 0
+        self.msg.source                  = "2+2"
+        self.msg.is_compiled             = True
+        self.msg.program_output          = 4
+        self.msg.is_check_by_server      = True
+        self.msg.is_reload               = 0
+        self.msg.is_server_has_program   = True
 
-
+    def test_parse_message_from_client(self):
+        self.assertEqual(parse_message_from_server(self.json), self.msg)
 
 
 
