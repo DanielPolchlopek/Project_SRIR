@@ -58,24 +58,14 @@ def not_found(error):
 
 
 @app.route('/server')
-def send_data():
+def show_server_view():
     return render_template('server.html')
 
 
+# ustawia parsowanie danych z jsona na struktura danych slownik (dictionary)
+# funkcja podawana jako argument do innej funkcji
 def obj_dict(obj):
     return obj.__dict__
-
-
-# API odbierajace dane od klienta
-@app.route('/getDatafromClient', methods=['POST'])
-def getDataFromClient():
-    input_json      = request.get_json(force=True)
-    new_client      = parse_message_from_client(input_json)
-    updated_client  = update_client_data(new_client)
-    client_list.append(updated_client)
-
-    server_response = {'data_to_client': updated_client.toJSON()}
-    return jsonify(server_response)
 
 
 # API udostepnione dla widoku serwera
@@ -90,6 +80,18 @@ def getNextClientId():
     client_id         = Message.unique_id
     Message.unique_id = Message.unique_id + 1
     return make_response(json.dumps(client_id, default=obj_dict))
+
+
+# API udostepnione dla clienta - zwraca zupdatowane dane o kliencie
+@app.route('/getDatafromClient', methods=['POST'])
+def getDataFromClient():
+    input_json      = request.get_json(force=True)
+    new_client      = parse_message_from_client(input_json)
+    updated_client  = update_client_data(new_client)
+    client_list.append(updated_client)
+
+    server_response = {'data_to_client': updated_client.toJSON()}
+    return jsonify(server_response)
 
 
 if __name__ == '__main__':
