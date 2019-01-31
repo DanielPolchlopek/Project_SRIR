@@ -85,12 +85,12 @@ class TestUpdateClientData(unittest.TestCase):
 # Testy jednostkowe dla API serwera - aby sprawdzic poprawnosc API,
 # nalezy zresetowac serwer przed odpaleniem testow
 # --------------------------------------
-class TestSendNextClientId(unittest.TestCase):
-    def setUp(self):
-
-
-    def test_sendNextClientId(self):
-        self.assertEqual(parse_message_from_client(self.json), self.msg)
+# class TestSendNextClientId(unittest.TestCase):
+#     def setUp(self):
+#
+#
+#     def test_sendNextClientId(self):
+#         self.assertEqual(parse_message_from_client(self.json), self.msg)
 
 
 # --------------------------------------

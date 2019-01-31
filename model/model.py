@@ -1,6 +1,5 @@
 import json
 
-
 class Message(object):
     unique_id = 0
 

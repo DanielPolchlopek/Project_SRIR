@@ -2,8 +2,10 @@ from flask import Flask, render_template, jsonify, make_response, request
 import json
 from client.client_controller import routes
 from model.model import Message
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.register_blueprint(routes, template_folder='templates')
 
 client_list = []  # lista przechowujaca wszytskich klientow
