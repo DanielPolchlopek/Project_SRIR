@@ -76,19 +76,21 @@ def conectedClients():
 
 # API udostepnione dla clienta - pobieranie id clienta
 @app.route('/getClientId')
-def getNextClientId():
+def sendNextClientId():
     client_id         = Message.unique_id
     Message.unique_id = Message.unique_id + 1
+    new_client = Message()
+    client_list.append(new_client)
     return make_response(json.dumps(client_id, default=obj_dict))
 
 
 # API udostepnione dla clienta - zwraca zupdatowane dane o kliencie
 @app.route('/getDatafromClient', methods=['POST'])
-def getDataFromClient():
+def sendDataToClient():
     input_json      = request.get_json(force=True)
     new_client      = parse_message_from_client(input_json)
     updated_client  = update_client_data(new_client)
-    client_list.append(updated_client)
+    client_list[new_client.client_id] = updated_client
 
     server_response = {'data_to_client': updated_client.toJSON()}
     return jsonify(server_response)

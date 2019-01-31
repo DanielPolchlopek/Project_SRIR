@@ -1,4 +1,5 @@
 from server.server_controller import verify_program, parse_message_from_client, update_client_data
+from server.server_controller import sendNextClientId
 from client.client_controller import getClientId, parse_message_from_server
 from model.model import Message
 import unittest
@@ -55,8 +56,7 @@ class TestParseMessageFromClient(unittest.TestCase):
         self.assertEqual(parse_message_from_client(self.json), self.msg)
 
 
-# test zawierajacy w sobie inna funkcje wiec to jest takze tekst integracyjny,
-# przynajmniej tak mi sie wydaje
+# test zawierajacy w sobie inna funkcje wiec to jest takze tekst integracyjny
 class TestUpdateClientData(unittest.TestCase):
     def setUp(self):
         self.basic_msg = Message()
@@ -79,6 +79,18 @@ class TestUpdateClientData(unittest.TestCase):
 
     def test_update_client_data(self):
         self.assertEqual(update_client_data(self.basic_msg), self.update_msg)
+
+
+# --------------------------------------
+# Testy jednostkowe dla API serwera - aby sprawdzic poprawnosc API,
+# nalezy zresetowac serwer przed odpaleniem testow
+# --------------------------------------
+class TestSendNextClientId(unittest.TestCase):
+    def setUp(self):
+
+
+    def test_sendNextClientId(self):
+        self.assertEqual(parse_message_from_client(self.json), self.msg)
 
 
 # --------------------------------------
@@ -106,6 +118,4 @@ class TestParseMessageFromServer(unittest.TestCase):
 
     def test_parse_message_from_client(self):
         self.assertEqual(parse_message_from_server(self.json), self.msg)
-
-
 

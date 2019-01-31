@@ -7,7 +7,7 @@ from flask import Blueprint
 routes = Blueprint('routes', __name__, template_folder='templates')
 
 
-# metoda pobierajaca od serwera wolne nastepne dostepne id klienta
+# funkcja pobierajaca od serwera wolne nastepne dostepne id klienta
 def getClientId():
     url = "http://localhost:5000/getClientId"
     try:
@@ -18,6 +18,19 @@ def getClientId():
     Jresponse = uResponse.text
     client_id = json.loads(Jresponse)
     return client_id
+
+
+# funkcja pobierajaca od serwera zupdateowane dane o kliencie
+def getUpdatedClientData(client_id, source_to_compile):
+    msg = Message()
+    msg.client_id = client_id
+    msg.source = source_to_compile.read().decode('utf-8')
+
+    response = requests.post('http://localhost:5000/getDatafromClient', json=msg.toJSON())
+    response_from_server = response.json()
+    response_from_server = response_from_server['data_to_client']
+
+    return response_from_server
 
 
 @routes.route('/client')
@@ -50,14 +63,7 @@ def upload_file():
     source_to_compile = request.files['file']
     client_id         = request.form.get('client_id', type=int)
 
-    msg               = Message()
-    msg.client_id     = client_id
-    msg.source        = source_to_compile.read().decode('utf-8')
-
-    response = requests.post('http://localhost:5000/getDatafromClient', json=msg.toJSON())
-
-    response_from_server = response.json()
-    response_from_server = response_from_server['data_to_client']
+    response_from_server = getUpdatedClientData(client_id, source_to_compile)
 
     return redirect(url_for('routes.show_update_client_view', client=response_from_server))
 
